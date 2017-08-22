@@ -8,6 +8,14 @@ class Lang extends Model
 {
     
     /**
+     * Get the client that owns the lang.
+     */
+    public function client()
+    {
+        return $this->belongsTo('App\Client');
+    }
+    
+    /**
      * Get user record for the creator.
      */
     public function created_from()
