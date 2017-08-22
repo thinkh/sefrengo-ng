@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class UsersTableSeeder extends Seeder
+class ClientsTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,12 +11,14 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'name' => 'admin',
-            'email' => str_random(10).'@foo.bar',
-            'password' => bcrypt('secret'),
+        DB::table('clients')->insert([
+            'name' => 'Demo Website',
+            'description' => 'A few pages to demonstrate the CMS',
+            'created_from' => 1,
+            'updated_from' => 1,
             'created_at' => \Carbon\Carbon::now(),
             'updated_at' => \Carbon\Carbon::now(),
         ]);
+        
     }
 }
