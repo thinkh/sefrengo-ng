@@ -1,47 +1,40 @@
-# PHP CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-php/ for more details
-#
 version: 2
+
 jobs:
   build:
+    working_directory: ~/laravel
     docker:
-      # specify the version you desire here
-      - image: circleci/php:7.1.5-browsers
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mysql:9.4
-
-    working_directory: ~/repo
-
+      - image: notnoopci/php:7.1-apache-node
+      - image: circleci/mysql:5.7
+        environment:
+          - MYSQL_USER=root
+          - MYSQL_PASSWORD=
+          - MYSQL_ALLOW_EMPTY_PASSWORD=true
+          - MYSQL_DATABASE=circle_test
     steps:
+      - run:
+          name: Install PHP extensions
+          command: sudo docker-php-ext-install pdo_mysql
+      - run:
+          name: Install Composer
+          command: 'curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer'
+      - run:
+          name: Display versions
+          command: |
+            php -v
+            composer --version
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "composer.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: composer install -n --prefer-dist
-
+            - composer-v1-{{ checksum "composer.json" }}
+            - composer-v1-
+      - run:
+          name: Install project dependencies
+          command: composer install -n --prefer-dist
       - save_cache:
+          key: composer-v1-{{ checksum "composer.json" }}
           paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "composer.json" }}
-        
-      # run tests!
-      - run: phpunit
-      
-      - run: yarn install
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-        
-      # run tests!
-      - run: yarn test
+            - vendor
+      - run:
+          name: Run PhpUnit
+          command: ./vendor/bin/phpunit
